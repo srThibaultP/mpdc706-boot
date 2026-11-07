@@ -1,0 +1,21 @@
+#!/bin/sh
+# Mounts the boot partition read-only and brings up the touchscreen and Wi-Fi.
+[ "$1" = start ] || exit 0
+mkdir -p /boot
+mount -t vfat -o ro /dev/mmcblk0p1 /boot
+if [ -f /boot/authorized_keys ]; then
+	mkdir -p -m 700 /root/.ssh
+	cp /boot/authorized_keys /root/.ssh/authorized_keys
+	chmod 600 /root/.ssh/authorized_keys
+fi
+if [ -f /boot/gsl1680-inet86dz.fw ]; then
+	mkdir -p /lib/firmware/silead
+	cp /boot/gsl1680-inet86dz.fw /lib/firmware/silead/
+fi
+modprobe silead
+modprobe rtl8xxxu
+(
+	sleep 3
+	wpa_supplicant -B -D nl80211 -i wlan0 -c /boot/wifi.conf
+	udhcpc -b -i wlan0 -x hostname:mpdc706
+) > /dev/null 2>&1 &
