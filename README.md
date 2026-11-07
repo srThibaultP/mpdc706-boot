@@ -49,4 +49,7 @@ The GSL1680 firmware is not included because its license is unknown. To enable t
 - SSH password login is disabled. To enable SSH, put your public key in `authorized_keys` on the FAT partition.
 - The boot partition is mounted read-only at `/boot`.
 - The root account has no console password. Do not expose the serial or local console.
-- Run `make -C out legal-info` before distributing an image publicly, so the matching source code and licenses are available.
+
+## Licenses
+
+The image contains GPL and other open source software. Each release includes `mpdc706-boot-sources.tar` with the matching source code, patches, license texts and manifest. It also includes Realtek Wi-Fi firmware, distributed in binary form under `LICENCE.rtlwifi_firmware.txt`, which is in that archive.

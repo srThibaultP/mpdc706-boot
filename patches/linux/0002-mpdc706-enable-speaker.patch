@@ -1,0 +1,20 @@
+--- a/arch/arm/boot/dts/allwinner/sun8i-a23-inet86dz.dts	2026-11-07 18:35:40.960645686 +0100
++++ b/arch/arm/boot/dts/allwinner/sun8i-a23-inet86dz.dts	2026-11-07 18:35:40.961645675 +0100
+@@ -71,3 +71,17 @@
+ 	/delete-property/ cd-gpios;
+ 	broken-cd;
+ };
++
++/* Speaker amplifier enable pin from the stock D701HC configuration. */
++&codec {
++	allwinner,pa-gpios = <&pio 7 9 0>; /* PH9 */
++	allwinner,audio-routing =
++		"Headphone", "HP",
++		"Headphone", "HPCOM",
++		"Speaker", "HP",
++		"MIC1", "Mic",
++		"MIC2", "Headset Mic",
++		"Mic", "MBIAS",
++		"Headset Mic", "HBIAS";
++	status = "okay";
++};
