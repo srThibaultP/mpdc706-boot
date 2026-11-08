@@ -2,7 +2,7 @@
 
 Buildroot recipe for a minimal Linux microSD image for the MPMAN MPDC706 tablet (INet-86DZ board, Allwinner A23). The tablet boots from the card and its internal Android storage stays untouched.
 
-The image contains U-Boot, Linux 6.18, the touchscreen, RTL8188 Wi-Fi, speaker and front camera drivers, `wpa_cli`, and SSH with key authentication. It contains no application and no touchscreen firmware.
+The image contains U-Boot, Linux 6.18, the touchscreen, RTL8188 Wi-Fi, speaker and front camera drivers, USB host support on the micro-USB port, `wpa_cli`, and SSH with key authentication. It contains no application and no touchscreen firmware.
 
 ## What is in this repository
 
@@ -64,7 +64,18 @@ v4l2-ctl -d /dev/video0 --set-fmt-video=width=640,height=480,pixelformat=UYVY
 v4l2-ctl -d /dev/video0 --stream-mmap --stream-skip=40 --stream-count=1 --stream-to=frame.uyvy
 ```
 
-The rear GC2035 camera does not answer on its bus and is not supported. The stock firmware lists a vibration motor on DLDO4, but the tested unit does not vibrate, so it is not described.
+The stock firmware also lists a GC2035 sensor, but this tablet has no rear camera. The stock firmware lists a vibration motor on DLDO4, but the tested unit does not vibrate, so it is not described.
+
+## USB host
+
+The micro-USB port switches to host mode when an OTG adapter grounds its ID pin, and the AXP223 then powers the port from the battery. The kernel includes drivers for:
+
+- USB storage, with FAT and exFAT
+- USB serial adapters: CDC ACM, CH341, CP210x, FTDI and PL2303. This covers most Zigbee and Z-Wave sticks
+- USB Ethernet adapters: CDC Ethernet and NCM, ASIX AX88772 and AX88179, Realtek RTL8152 and RTL8153
+- Keyboards, barcode scanners and other HID devices
+
+The port is also the charging input, so a device that draws more than the battery can supply needs an OTG adapter with power passthrough or a powered hub. Devices show up in `/sys/bus/usb/devices`. The image does not start a DHCP client on USB Ethernet adapters.
 
 ## Notes
 
