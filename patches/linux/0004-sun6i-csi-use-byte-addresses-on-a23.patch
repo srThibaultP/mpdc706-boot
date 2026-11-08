@@ -1,0 +1,11 @@
+--- a/drivers/media/platform/sunxi/sun6i-csi/sun6i_csi_reg.h
++++ b/drivers/media/platform/sunxi/sun6i-csi/sun6i_csi_reg.h
+@@ -11,7 +11,7 @@
+ 
+ #include <linux/kernel.h>
+ 
+-#define SUN6I_CSI_ADDR_VALUE(a)			((a) >> 2)
++#define SUN6I_CSI_ADDR_VALUE(a)			(a) /* A23 takes byte addresses */
+ 
+ #define SUN6I_CSI_EN_REG			0x0
+ #define SUN6I_CSI_EN_VER_EN			BIT(30)

@@ -1,0 +1,109 @@
+--- a/arch/arm/boot/dts/allwinner/sun8i-a23-inet86dz.dts
++++ b/arch/arm/boot/dts/allwinner/sun8i-a23-inet86dz.dts
+@@ -85,3 +85,106 @@
+ 		"Headset Mic", "HBIAS";
+ 	status = "okay";
+ };
++
++/* camera probe: sensor bus and power rails from the stock configuration. */
++&i2c2 {
++	status = "okay";
++};
++
++&reg_dldo3 {
++	regulator-always-on;
++	regulator-min-microvolt = <2800000>;
++	regulator-max-microvolt = <2800000>;
++	regulator-name = "vcc-csi-io";
++};
++
++&reg_ldo_io0 {
++	regulator-always-on;
++	regulator-min-microvolt = <2800000>;
++	regulator-max-microvolt = <2800000>;
++	regulator-name = "vcc-csi-avdd";
++	status = "okay";
++};
++
++&reg_eldo2 {
++	regulator-always-on;
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <1800000>;
++	regulator-name = "vcc-csi-dvdd";
++};
++
++/* Parallel camera port, wired as in the stock D701HC configuration. */
++&pio {
++	csi_8bit_pins: csi-8bit-pins {
++		pins = "PE0", "PE2", "PE3", "PE4", "PE5", "PE6",
++		       "PE7", "PE8", "PE9", "PE10", "PE11";
++		function = "csi";
++	};
++
++	csi_mclk_pin: csi-mclk-pin {
++		pins = "PE1";
++		function = "csi";
++	};
++
++	/* Keep the unused GC2035 off the shared camera bus. */
++	gc2035-powerdown-hog {
++		gpio-hog;
++		gpios = <4 15 0>;
++		output-high;
++	};
++
++	gc2035-reset-hog {
++		gpio-hog;
++		gpios = <4 14 0>;
++		output-low;
++	};
++};
++
++&{/soc} {
++	csi: camera@1cb0000 {
++		compatible = "allwinner,sun6i-a31-csi";
++		reg = <0x01cb0000 0x1000>;
++		interrupts = <GIC_SPI 84 IRQ_TYPE_LEVEL_HIGH>;
++		clocks = <&ccu CLK_BUS_CSI>, <&ccu CLK_CSI_SCLK>, <&ccu CLK_DRAM_CSI>;
++		clock-names = "bus", "mod", "ram";
++		resets = <&ccu RST_BUS_CSI>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&csi_8bit_pins>;
++
++		port {
++			/* The A23 CSI needs inverted sync settings to see the active window. */
++			csi_from_gc0308: endpoint {
++				remote-endpoint = <&gc0308_to_csi>;
++				bus-width = <8>;
++				hsync-active = <0>;
++				vsync-active = <0>;
++				pclk-sample = <1>;
++			};
++		};
++	};
++};
++
++&i2c2 {
++	camera-sensor@21 {
++		compatible = "galaxycore,gc0308";
++		reg = <0x21>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&csi_mclk_pin>;
++		clocks = <&ccu CLK_CSI_MCLK>;
++		assigned-clocks = <&ccu CLK_CSI_MCLK>;
++		assigned-clock-rates = <24000000>;
++		powerdown-gpios = <&pio 4 17 0>;
++		reset-gpios = <&pio 4 16 1>;
++		vdd28-supply = <&reg_dldo3>;
++
++		port {
++			gc0308_to_csi: endpoint {
++				remote-endpoint = <&csi_from_gc0308>;
++				bus-width = <8>;
++				hsync-active = <1>;
++				vsync-active = <1>;
++				pclk-sample = <1>;
++			};
++		};
++	};
++};

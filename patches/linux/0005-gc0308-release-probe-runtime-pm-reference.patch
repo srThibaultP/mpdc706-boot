@@ -1,0 +1,12 @@
+--- a/drivers/media/i2c/gc0308.c
++++ b/drivers/media/i2c/gc0308.c
+@@ -1387,6 +1387,9 @@
+ 		goto fail_rpm;
+ 	}
+ 
++	/* Drop the probe reference so the sensor can power down when idle. */
++	pm_runtime_put_autosuspend(dev);
++
+ 	return 0;
+ 
+ fail_rpm:
